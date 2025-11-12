@@ -1,0 +1,206 @@
+<main class="app-main">
+  <br>
+  <div class="app-content">
+      <div class="container-fluid">
+      <div class="row">
+          <div class="col-12">
+          <div class="card">
+              <div class="card-header">
+                  <h3 class="card-title">Crear Expediente</h3>
+              </div>
+              <form [formGroup]="expedienteForm" class="needs-validation">
+                  <div class="card-body">
+                      <div class="mb-3">
+                          <label for="infante" class="form-label">Infante</label>
+                          <div class="input-group" [ngClass]="{'is-invalid': submitted && infanteId.errors}">
+                            <input type="hidden" id="infanteId" [formControl]="infanteId"/>
+                            <input type="text"
+                                    disabled
+                                    class="form-control"
+                                    id="infante"
+                                    value="{{infanteSelected?.nombres}} {{infanteSelected?.apellido_paterno}}"
+                                    [ngClass]="{'is-invalid': submitted && infanteId.errors}"
+                                    placeholder="Nombre del Infante"/>
+                            <button type="button" class="btn btn-primary" (click)="openModalInfantes(modalInfante)">...</button>
+                          </div>
+                          @if (infanteId.errors) {
+                            <div class="invalid-feedback">
+                            @if (infanteId.hasError('required')) {
+                                Infante es obligatorio.
+                            }
+                            </div>
+                          }
+                      </div>
+
+                      <hr>
+
+                      <h6>Familia Acogedora</h6>
+
+                      <div class="input-group">
+                        <input type="text"
+                                class="form-control"
+                                id="persona"
+                                disabled
+                                value="{{personaSelected?.nombres}}"
+                                placeholder="Nombre del Padre o Familia Acogedora"/>
+                        <button type="button" class="btn btn-primary" (click)="openModalPersonas(modalPersona)">...</button>
+
+
+                        <button type="button" class="btn btn-success" (click)="addDetail()">Agregar</button>
+                      </div>
+
+                      <br>
+
+                      <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>nombres</th>
+                            <th>Apellidos</th>
+                            <th>DNI</th>
+                            <th></th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (detalle of detalles; let idx = $index; track $index) {
+                            <tr>
+                                <td>{{idx+1}}</td>
+                                <td>{{detalle.persona.nombres}}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger" (click)="removeDetail(idx)">Quitar</button>
+                                </td>
+                            </tr>
+                          }
+                          @if (detalles.length == 0) {
+                            <tr>
+                              <td colspan="6">No hay detalles 2.</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+
+                  </div>
+                  <div class="card-footer">
+                      <button type="button" class="btn btn-success mx-1" (click)="generate()">Generar Expediente</button>
+                      <button type="button" class="btn btn-danger mx-1" [routerLink]="'/expedientes'">Cancelar y volver</button>
+                  </div>
+              </form>
+          </div>
+          </div>
+      </div>
+      </div>
+  </div>
+</main>
+
+
+<!-- Listado de Infantes -->
+<ng-template #modalInfante>
+  <div class="modal-header">
+    <h3>Buscar Infante</h3>
+  </div>
+  <div class="modal-body">
+    <div class="input-group mb-3">
+      <input type="text"
+              #searchInput
+              class="form-control form-control-color"
+              placeholder="Ingrese el valor de Nombres a buscar"
+              (keyup)="searchInfante(searchInput.value)">
+    </div>
+    <ngx-datatable
+        #table
+        class="material"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [messages]="{'emptyMessage': 'No hay datos'}"
+        rowHeight="auto"
+        [count]="totalRows"
+        [offset]="pageNumber"
+        [limit]="pageSize"
+        [rows]="infantes"
+        (page)="onPageChange($event)"
+        (sort)="onSortChange($event)"
+        [externalPaging]="true">
+
+        <ngx-datatable-column name="Nombres" prop="nombres">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{ value }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Apellidos" prop="apellidos">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{ value }}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Acciones">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <button type="button" class="btn btn-success btn-sm mx-2" (click)="selectInfante(row)">
+              Seleccionar
+            </button>
+          </ng-template>
+        </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModalInfantes()">Cerrar Ventana</button>
+  </div>
+</ng-template>
+
+
+<!-- Listado de Infantes -->
+<ng-template #modalPersona>
+  <div class="modal-header">
+    <h3>Buscar Persona</h3>
+  </div>
+  <div class="modal-body">
+    <div class="input-group mb-3">
+      <input type="text"
+              #searchInput
+              class="form-control form-control-color"
+              placeholder="Ingrese la Descripcion del Persona a buscar"
+              (keyup)="searchPersona(searchInput.value)">
+    </div>
+    <ngx-datatable
+      #table
+      class="material"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [messages]="{'emptyMessage': 'No hay datos'}"
+      rowHeight="auto"
+      [limit]="5"
+      [rows]="personas">
+
+      <ngx-datatable-column name="nombres" prop="nombres">
+        <ng-template let-value="value" ngx-datatable-cell-template>
+            {{ value }}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="Apellidos" prop="Apellidos">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+              {{ value }}
+          </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="DNI" prop="dni">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+              {{ value }}
+          </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="Acciones">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <button type="button" class="btn btn-success btn-sm mx-2" (click)="selectPersona(row)">
+            Seleccionar
+          </button>
+        </ng-template>
+      </ngx-datatable-column>
+
+  </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModalPersonas()">Cerrar Ventana</button>
+  </div>
+</ng-template>

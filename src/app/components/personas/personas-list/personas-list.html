@@ -1,0 +1,106 @@
+<main class="app-main">
+<br>
+<!--begin::App Content-->
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+    <!--begin::Row-->
+    <div class="row">
+        <div class="col-12">
+        <!-- Default box -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Personas</h3>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input type="text"
+                            #searchInput
+                            class="form-control form-control-color"
+                            placeholder="Ingrese el valor de Nombres a buscar"
+                            (keyup)="search(searchInput.value)">
+                    <button class="btn btn-primary mb-3" [routerLink]="['/personas/register']">
+                        <i class="fas fa-plus"></i> Agregar Persona
+                    </button>
+                </div>
+                <ngx-datatable
+                    #table
+                    class="material"
+                    [columnMode]="'force'"
+                    [headerHeight]="50"
+                    [footerHeight]="50"
+                    [messages]="{'emptyMessage': 'No hay datos'}"
+                    rowHeight="auto"
+                    [count]="totalRows"
+                    [offset]="pageNumber"
+                    [limit]="pageSize"
+                    [rows]="personas"
+                    (page)="onPageChange($event)"
+                    (sort)="onSortChange($event)"
+                    [externalPaging]="true">
+
+                    <ngx-datatable-column name="Nombres" prop="nombres">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Apellido paterno" prop="apellido_paterno">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Apellido materno" prop="apellido_materno">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="DNI" prop="dni">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Direccion" prop="direccion">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Acciones">
+                        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            <button type="button" class="btn btn-info btn-sm mx-2" [routerLink]="['/personas/edit/', row.id]">
+                                Editar
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm mx-2" (click)="deletePersona(deletePersonaModal, row)">
+                                Eliminar
+                            </button>
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                </ngx-datatable>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer"></div>
+            <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+        </div>
+    </div>
+    <!--end::Row-->
+    </div>
+</div>
+<!--end::App Content-->
+</main>
+
+<ng-template #deletePersonaModal>
+    <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar este persona "{{persona?.nombres}} {{persona?.apellido_paterno}} {{persona?.apellido_materno}}"?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Eliminar</button>
+    </div>
+</ng-template>
+

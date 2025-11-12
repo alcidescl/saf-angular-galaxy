@@ -1,0 +1,136 @@
+<main class="app-main">
+<br>
+<div class="app-content">
+    <div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Expedientes</h3>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="desde">Desde</span>
+                    </div>
+                    <input type="text"
+                            #desdeInput
+                            class="form-control form-control-color text-readonly"
+                            bsDatepicker
+                            autocomplete="off"
+                            onkeydown="return false"
+                            [bsValue]="desdeDate"
+                            [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY' }"
+                            (bsValueChange)="onDesdeDateChange($event)"
+                            placeholder="Desde">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="hasta">Hasta</span>
+                    </div>
+                    <input type="text"
+                            #hastaInput
+                            bsDatepicker
+                            autocomplete="off"
+                            onkeydown="return false"
+                            [bsValue]="hastaDate"
+                            [bsConfig]="{ dateInputFormat: 'DD/MM/YYYY' }"
+                            (bsValueChange)="onHastaDateChange($event)"
+                            class="form-control form-control-color text-readonly"
+                            placeholder="Hasta">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="estado">Estado</span>
+                    </div>
+                    <select id="estado" [(ngModel)]="estadoFilter" class="form-control form-control-color" (ngModelChange)="loadExpedientes()">
+                        <option value="">- TODOS -</option>
+                        <option value="ABIERTO">GENERADO</option>
+                        <option value="FINALIZADO">FINALIZADO</option>
+                        <option value="ENEVALUACION">EN EVALUACION</option>
+                        <option value="ENEVALUACION">ABIERTO</option>
+
+                    </select>
+                    <button class="btn btn-primary mb-3" [routerLink]="['/expedientes/register']" *appHasRole="'EXPEDIENTES_CREAR'">
+                        <i class="fas fa-plus"></i> Crear Expediente
+                    </button>
+                </div>
+                <ngx-datatable
+                    #table
+                    class="material"
+                    [columnMode]="'force'"
+                    [headerHeight]="50"
+                    [footerHeight]="50"
+                    [messages]="{'emptyMessage': 'No hay datos'}"
+                    rowHeight="auto"
+                    [limit]="10"
+                    [rows]="expedientes">
+
+                    <ngx-datatable-column name="Item" prop="id" [width]="10">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value }}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Nro Expediente" prop="numeroExpediente" [width]="80">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value}}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Infantes" [width]="200">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        <div [innerHTML]="getInfantesTexto(row)"></div>
+                    </ng-template>
+                    </ngx-datatable-column>
+
+
+                    <ngx-datatable-column name="Fecha Inicio Expediente" prop="fechaCreacion" [width]="10">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value | date: 'dd/MM/yyyy'}}
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                    <ngx-datatable-column name="Estado" prop="estado" [width]="10">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            <span class="badge bg-success">{{ value }}</span>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Acciones">
+                        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            <button type="button" class="btn btn-info btn-sm mx-2" [routerLink]="['/expedientes/view/', row.id]">
+                                Familia Protectora
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm mx-2" (click)="cancelarExpediente(cancelarExpedienteModal, row)">
+                                anular
+                            </button>
+                            <button type="button" class="btn btn-warning btn-sm mx-2" (click)="segumientoExpediente(confirmarSeguimientoExpedienteModal, row)">
+                                Realizar Seguimiento
+                            </button>
+                        </ng-template>
+                    </ngx-datatable-column>
+
+                </ngx-datatable>
+            </div>
+            <div class="card-footer"></div>
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+</main>
+
+<ng-template #cancelarExpedienteModal>
+    <div class="modal-body">
+        <p>¿Estás seguro de que deseas anular este Expediente "{{expediente?.id}}"?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar Ventana</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarCancelar()">Si, anular</button>
+    </div>
+</ng-template>
+
+<ng-template #confirmarSeguimientoExpedienteModal>
+    <div class="modal-body">
+        <p>¿Estás seguro de que deseas realizar el Seguimiento este Expediente "{{expediente?.id}}"?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar Ventana</button>
+        <button type="button" class="btn btn-danger" (click)="confirmarSeguimiento()">Si, Realizar Seguimiento</button>
+    </div>
+</ng-template>
